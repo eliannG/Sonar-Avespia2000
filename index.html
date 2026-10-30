@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>Resistencia Nocturna · AVEspía 2000</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 740 440'><path fill='%233ddc84' d='M30 80 C110 105 170 108 205 102 Q240 180 318 222 L340 150 Q370 185 400 150 L422 222 Q500 180 535 102 C570 108 630 105 710 80 Q660 170 672 265 Q610 250 568 322 Q520 300 492 360 Q420 335 370 410 Q320 335 248 360 Q220 300 172 322 Q130 250 68 265 Q80 170 30 80 Z'/></svg>">
+<style>
+:root{--g:#3ddc84;--gd:rgba(61,220,132,.55);--c:#7df9ff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:var(--g);font-family:ui-monospace,'Courier New',monospace;overflow:hidden;user-select:none;-webkit-user-select:none}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px)}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:18px}
+.scr.on{display:flex}
+svg.bat{width:58vw;max-width:260px;filter:drop-shadow(0 0 14px rgba(61,220,132,.7))}
+h1{font-size:26px;letter-spacing:.12em;text-shadow:0 0 12px rgba(61,220,132,.7);line-height:1.3}
+p{color:var(--gd);font-size:15px;line-height:1.5;letter-spacing:.04em}
+input{width:100%;max-width:320px;background:#020a06;border:1px solid var(--gd);color:var(--g);font:inherit;font-size:20px;padding:14px;border-radius:8px;text-align:center;text-transform:uppercase;outline:none}
+button{font:inherit;font-size:20px;font-weight:700;letter-spacing:.12em;background:var(--g);color:#000;border:0;border-radius:10px;padding:16px 28px;width:100%;max-width:320px}
+#ring{width:62vw;height:62vw;max-width:300px;max-height:300px;border-radius:50%;border:3px solid var(--c);display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 0 30px rgba(125,249,255,.4),inset 0 0 30px rgba(125,249,255,.2);color:var(--c);transition:transform .1s,background .2s}
+#ring.hit{transform:scale(1.12);background:rgba(125,249,255,.25)}
+#ring b{font-size:64px;line-height:1}
+#ring span{font-size:13px;letter-spacing:.15em;margin-top:6px}
+.big{font-size:30px;color:var(--c);letter-spacing:.1em;text-shadow:0 0 14px rgba(125,249,255,.7);animation:pl 1.2s infinite}
+@keyframes pl{50%{opacity:.45}}
+#st{font-size:13px;letter-spacing:.12em}
+#st.ok{color:var(--g)}#st.no{color:#ff4d4d}
+#tap{background:transparent;color:var(--c);border:1px solid var(--c);font-size:15px;padding:12px}
+#done{background:radial-gradient(circle,#0a3a2a,#000 70%)}
+#done h1{font-size:44px;color:#e8ffff;text-shadow:0 0 30px #7df9ff}
+</style>
+</head>
+<body>
+
+<div class="scr on" id="s1">
+  <svg class="bat" viewBox="0 0 740 440"><path fill="#3ddc84" d="M30 80 C110 105 170 108 205 102 Q240 180 318 222 L340 150 Q370 185 400 150 L422 222 Q500 180 535 102 C570 108 630 105 710 80 Q660 170 672 265 Q610 250 568 322 Q520 300 492 360 Q420 335 370 410 Q320 335 248 360 Q220 300 172 322 Q130 250 68 265 Q80 170 30 80 Z"/></svg>
+  <h1>UNITE A LA<br>RESISTENCIA NOCTURNA</h1>
+  <p>Tu celular se convierte en un nodo del sonar.<br>Vas a aparecer en la pantalla.</p>
+  <input id="nm" maxlength="12" placeholder="TU NOMBRE" autocomplete="off">
+  <button id="go">CONECTAR</button>
+</div>
+
+<div class="scr" id="s2">
+  <div class="big">¡SACUDÍ EL CELULAR!</div>
+  <div id="ring"><b id="cnt">0</b><span>PULSOS ENVIADOS</span></div>
+  <p>Cada sacudida es un pulso de sonar.<br>Entre todos, completamos la señal.</p>
+  <button id="tap">¿NO ANDA? TOCÁ ACÁ</button>
+  <div id="st">CONECTANDO...</div>
+</div>
+
+<div class="scr" id="done">
+  <h1>SIDEQUEST</h1>
+  <p style="color:#bff9ff">SEÑAL COMPLETA.<br>BIENVENIDO A LA RESISTENCIA.</p>
+</div>
+
+<script src="mqtt.min.js"></script>
+<script>
+const ROOM='sq-hw26-r7k2';  // tiene que ser igual en SonarNocturno/index.html
+const QS=new URLSearchParams(location.search);
+const BROKERS=QS.get('broker')?[QS.get('broker')]:['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
+const TOPIC='avespia2000/'+ROOM;
+const $=s=>document.querySelector(s);
+let ID;try{ID=localStorage.getItem('av_id')}catch(e){}
+if(!ID){ID='p'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('av_id',ID)}catch(e){}}
+let NAME='',clients=[],count=0,seen=new Set();
+
+function send(o){o.id=ID;o.name=NAME;o.mid=Math.random().toString(36).slice(2);const s=JSON.stringify(o);clients.forEach(c=>{if(c.connected)c.publish(TOPIC,s)})}
+function status(){const n=clients.filter(c=>c.connected).length;$('#st').textContent=n?'● CONECTADO':'○ CONECTANDO...';$('#st').className=n?'ok':'no'}
+function connect(){
+  clients=BROKERS.map(u=>{let c;try{c=mqtt.connect(u,{clientId:'cel_'+ID+'_'+Math.random().toString(36).slice(2,6),reconnectPeriod:2000,connectTimeout:8000,keepalive:30,clean:true})}catch(e){return null}
+    c.on('connect',()=>{c.subscribe(TOPIC);status();send({t:'join'})});c.on('close',status);c.on('error',()=>{});
+    c.on('message',(t,m)=>{try{const o=JSON.parse(m.toString());if(!o.mid||seen.has(o.mid))return;seen.add(o.mid);if(o.from==='sonar'&&o.t==='done')finish()}catch(e){}});return c}).filter(Boolean);
+  setInterval(()=>{send({t:'hb'});status()},4000);
+}
+function pulse(){count++;$('#cnt').textContent=count;const r=$('#ring');r.classList.add('hit');setTimeout(()=>r.classList.remove('hit'),140);try{navigator.vibrate&&navigator.vibrate(50)}catch(e){}send({t:'shake'})}
+
+// detección de sacudida
+let last=null,lastShake=0;
+function onMotion(e){const a=e.accelerationIncludingGravity||e.acceleration;if(!a||a.x==null)return;
+  if(last){const d=Math.abs(a.x-last.x)+Math.abs(a.y-last.y)+Math.abs(a.z-last.z);const now=Date.now();if(d>22&&now-lastShake>350){lastShake=now;pulse()}}
+  last={x:a.x,y:a.y,z:a.z}}
+
+$('#go').onclick=async()=>{
+  NAME=($('#nm').value||'').trim().toUpperCase().slice(0,12);
+  try{if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){await DeviceMotionEvent.requestPermission()}}catch(e){}
+  addEventListener('devicemotion',onMotion);
+  $('#s1').classList.remove('on');$('#s2').classList.add('on');connect();
+};
+$('#nm').addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click()});
+$('#tap').onclick=pulse;$('#ring').onclick=pulse;
+let finished=false;
+function finish(){if(finished)return;finished=true;document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));$('#done').classList.add('on');try{navigator.vibrate&&navigator.vibrate([200,100,200,100,500])}catch(e){}}
+</script>
+</body>
+</html>
