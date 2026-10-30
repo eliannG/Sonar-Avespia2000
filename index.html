@@ -7,28 +7,52 @@
 <title>Resistencia Nocturna · AVEspía 2000</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 740 440'><path fill='%233ddc84' d='M30 80 C110 105 170 108 205 102 Q240 180 318 222 L340 150 Q370 185 400 150 L422 222 Q500 180 535 102 C570 108 630 105 710 80 Q660 170 672 265 Q610 250 568 322 Q520 300 492 360 Q420 335 370 410 Q320 335 248 360 Q220 300 172 322 Q130 250 68 265 Q80 170 30 80 Z'/></svg>">
 <style>
-:root{--g:#3ddc84;--gd:rgba(61,220,132,.55);--c:#7df9ff}
+:root{--g:#3ddc84;--gd:rgba(61,220,132,.55);--c:#7df9ff;--r:#ff4d4d;--o:#ff7a1a}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#000;color:var(--g);font-family:ui-monospace,'Courier New',monospace;overflow:hidden;user-select:none;-webkit-user-select:none}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px)}
-.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:18px}
+html,body{height:100%;background:#000;color:var(--g);font-family:ui-monospace,'Courier New',monospace;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-touch-callout:none}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;gap:16px}
 .scr.on{display:flex}
-svg.bat{width:58vw;max-width:260px;filter:drop-shadow(0 0 14px rgba(61,220,132,.7))}
-h1{font-size:26px;letter-spacing:.12em;text-shadow:0 0 12px rgba(61,220,132,.7);line-height:1.3}
-p{color:var(--gd);font-size:15px;line-height:1.5;letter-spacing:.04em}
+svg.bat{width:56vw;max-width:240px;filter:drop-shadow(0 0 14px rgba(61,220,132,.7))}
+h1{font-size:24px;letter-spacing:.1em;text-shadow:0 0 12px rgba(61,220,132,.7);line-height:1.3}
+p{color:var(--gd);font-size:15px;line-height:1.5}
 input{width:100%;max-width:320px;background:#020a06;border:1px solid var(--gd);color:var(--g);font:inherit;font-size:20px;padding:14px;border-radius:8px;text-align:center;text-transform:uppercase;outline:none}
-button{font:inherit;font-size:20px;font-weight:700;letter-spacing:.12em;background:var(--g);color:#000;border:0;border-radius:10px;padding:16px 28px;width:100%;max-width:320px}
-#ring{width:62vw;height:62vw;max-width:300px;max-height:300px;border-radius:50%;border:3px solid var(--c);display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 0 30px rgba(125,249,255,.4),inset 0 0 30px rgba(125,249,255,.2);color:var(--c);transition:transform .1s,background .2s}
-#ring.hit{transform:scale(1.12);background:rgba(125,249,255,.25)}
-#ring b{font-size:64px;line-height:1}
-#ring span{font-size:13px;letter-spacing:.15em;margin-top:6px}
-.big{font-size:30px;color:var(--c);letter-spacing:.1em;text-shadow:0 0 14px rgba(125,249,255,.7);animation:pl 1.2s infinite}
-@keyframes pl{50%{opacity:.45}}
-#st{font-size:13px;letter-spacing:.12em}
-#st.ok{color:var(--g)}#st.no{color:#ff4d4d}
-#tap{background:transparent;color:var(--c);border:1px solid var(--c);font-size:15px;padding:12px}
-#done{background:radial-gradient(circle,#0a3a2a,#000 70%)}
-#done h1{font-size:44px;color:#e8ffff;text-shadow:0 0 30px #7df9ff}
+.pbtn{font:inherit;font-size:20px;font-weight:700;letter-spacing:.12em;background:var(--g);color:#000;border:0;border-radius:10px;padding:16px 28px;width:100%;max-width:320px}
+/* juego */
+#game{justify-content:flex-start;padding-top:16px}
+#top{width:100%;max-width:420px;display:flex;justify-content:space-between;align-items:center;font-size:14px;letter-spacing:.08em}
+#me{color:var(--c);font-weight:700;font-size:16px}
+#st.ok{color:var(--g)}#st.no{color:var(--r)}
+#hpw{width:100%;max-width:420px;display:none}
+#hpw .l{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.bar{height:16px;border:1px solid var(--gd);border-radius:8px;overflow:hidden;background:#020a06}
+.bar i{display:block;height:100%;width:100%;background:var(--g);transition:width .2s}
+#hearts{font-size:40px;display:none}
+#msg{font-size:20px;line-height:1.5;color:#d8ffe8;max-width:420px;min-height:2em;white-space:pre-line}
+#msg b{color:var(--c);font-size:26px;display:block;margin-bottom:8px}
+#warn{display:none;font-size:30px;font-weight:700;color:#fff;background:var(--r);padding:12px 18px;border-radius:10px;animation:wb .35s infinite alternate;width:100%;max-width:420px}
+@keyframes wb{to{background:#7a0000}}
+#ctr{flex:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.gbtn{position:relative;overflow:hidden;width:100%;border:3px solid var(--c);border-radius:22px;background:#021014;color:var(--c);font:inherit;font-weight:700;font-size:30px;letter-spacing:.12em;touch-action:none}
+.gbtn .fill{position:absolute;left:0;bottom:0;width:100%;height:100%;background:rgba(125,249,255,.28);transform-origin:bottom;pointer-events:none}
+.gbtn span{position:relative;pointer-events:none}
+#bAtk{height:30vh;border-color:var(--o);color:#ffd9b8;background:#140700}
+#bAtk .fill{background:rgba(255,122,26,.45)}
+#bAtk.ready{box-shadow:0 0 30px rgba(255,122,26,.7)}
+#bSh{height:18vh}
+#bSh.on{background:rgba(125,249,255,.35);box-shadow:0 0 40px var(--c)}
+#bSh.off{opacity:.3;filter:grayscale(1)}
+#bSh small{display:block;font-size:13px;letter-spacing:.1em;margin-top:4px}
+#bMash{height:52vh;border-color:#ffd34d;color:#fff3c0;background:#1a1200;font-size:54px}
+#bMash:active{background:#4a3500}
+.cheer{display:flex;gap:12px;width:100%}
+.cheer button{flex:1;height:22vh;font:inherit;font-size:20px;font-weight:700;border-radius:18px;border:3px solid;background:#000}
+#cL{border-color:var(--c);color:var(--c)}#cR{border-color:var(--o);color:var(--o)}
+#vig{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px 60px rgba(255,0,0,.9);opacity:0;transition:opacity .45s;z-index:50}
+#vig.on{opacity:1;transition:none}
+#winS{background:radial-gradient(circle,#5a4300,#000 75%)}
+#winS h1{font-size:46px;color:#ffd34d;text-shadow:0 0 30px #ffb020}
+#winS p{color:#fff3c0;font-size:20px}
+.crown{font-size:90px;animation:bob 1s infinite alternate}@keyframes bob{to{transform:translateY(-10px)}}
 </style>
 </head>
 <body>
@@ -36,61 +60,108 @@ button{font:inherit;font-size:20px;font-weight:700;letter-spacing:.12em;backgrou
 <div class="scr on" id="s1">
   <svg class="bat" viewBox="0 0 740 440"><path fill="#3ddc84" d="M30 80 C110 105 170 108 205 102 Q240 180 318 222 L340 150 Q370 185 400 150 L422 222 Q500 180 535 102 C570 108 630 105 710 80 Q660 170 672 265 Q610 250 568 322 Q520 300 492 360 Q420 335 370 410 Q320 335 248 360 Q220 300 172 322 Q130 250 68 265 Q80 170 30 80 Z"/></svg>
   <h1>UNITE A LA<br>RESISTENCIA NOCTURNA</h1>
-  <p>Tu celular se convierte en un nodo del sonar.<br>Vas a aparecer en la pantalla.</p>
+  <p>Tu celular se convierte en un Avespía.<br>Vas a aparecer en la pantalla grande.</p>
   <input id="nm" maxlength="12" placeholder="TU NOMBRE" autocomplete="off">
-  <button id="go">CONECTAR</button>
+  <button class="pbtn" id="go">CONECTAR</button>
 </div>
 
-<div class="scr" id="s2">
-  <div class="big">¡SACUDÍ EL CELULAR!</div>
-  <div id="ring"><b id="cnt">0</b><span>PULSOS ENVIADOS</span></div>
-  <p>Cada sacudida es un pulso de sonar.<br>Entre todos, completamos la señal.</p>
-  <button id="tap">¿NO ANDA? TOCÁ ACÁ</button>
-  <div id="st">CONECTANDO...</div>
+<div class="scr" id="game">
+  <div id="top"><span id="me"></span><span id="st">○ CONECTANDO</span></div>
+  <div id="hpw"><div class="l"><span>VIDA</span><span id="hpt"></span></div><div class="bar"><i id="hpi"></i></div></div>
+  <div id="hearts"></div>
+  <div id="warn"></div>
+  <div id="msg"></div>
+  <div id="ctr">
+    <button class="gbtn" id="bAtk"><div class="fill" id="fAtk"></div><span>⚔️ ATACAR</span></button>
+    <button class="gbtn" id="bSh"><div class="fill" id="fSh"></div><span>🛡️ PROTEGER<small id="shL">MANTENÉ APRETADO</small></span></button>
+    <button class="gbtn" id="bMash"><span>¡DALE!</span></button>
+    <div class="cheer" id="cheer"><button id="cL"></button><button id="cR"></button></div>
+  </div>
 </div>
 
-<div class="scr" id="done">
-  <h1>SIDEQUEST</h1>
-  <p style="color:#bff9ff">SEÑAL COMPLETA.<br>BIENVENIDO A LA RESISTENCIA.</p>
-</div>
+<div class="scr" id="winS"><div class="crown">👑</div><h1>¡GANASTE!</h1><p>Sos el Avespía campeón<br>de la noche de Halloween.<br><br><b>Acercate al escenario<br>a buscar tu premio 🏆</b></p></div>
+
+<div id="vig"></div>
 
 <script src="mqtt.min.js"></script>
 <script>
-const ROOM='sq-hw26-r7k2';  // tiene que ser igual en SonarNocturno/index.html
+const ROOM='sq-hw26-r7k2';  // igual en SonarNocturno/index.html
 const QS=new URLSearchParams(location.search);
 const BROKERS=QS.get('broker')?[QS.get('broker')]:['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
-const TOPIC='avespia2000/'+ROOM;
+const T_IN='avespia2000/'+ROOM+'/in',T_OUT='avespia2000/'+ROOM+'/out';
 const $=s=>document.querySelector(s);
 let ID;try{ID=localStorage.getItem('av_id')}catch(e){}
 if(!ID){ID='p'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('av_id',ID)}catch(e){}}
-let NAME='',clients=[],count=0,seen=new Set();
+let NAME='',clients=[],lastSeq=0,S={ph:'idle'},prevHp=null,prevHeart=null;
 
-function send(o){o.id=ID;o.name=NAME;o.mid=Math.random().toString(36).slice(2);const s=JSON.stringify(o);clients.forEach(c=>{if(c.connected)c.publish(TOPIC,s)})}
-function status(){const n=clients.filter(c=>c.connected).length;$('#st').textContent=n?'● CONECTADO':'○ CONECTANDO...';$('#st').className=n?'ok':'no'}
+function send(o){o.id=ID;o.name=NAME;o.mid=Math.random().toString(36).slice(2);const s=JSON.stringify(o);clients.forEach(c=>{if(c.connected)c.publish(T_IN,s)})}
+function status(){const n=clients.filter(c=>c.connected).length;$('#st').textContent=n?'● EN LÍNEA':'○ CONECTANDO';$('#st').className=n?'ok':'no'}
 function connect(){
   clients=BROKERS.map(u=>{let c;try{c=mqtt.connect(u,{clientId:'cel_'+ID+'_'+Math.random().toString(36).slice(2,6),reconnectPeriod:2000,connectTimeout:8000,keepalive:30,clean:true})}catch(e){return null}
-    c.on('connect',()=>{c.subscribe(TOPIC);status();send({t:'join'})});c.on('close',status);c.on('error',()=>{});
-    c.on('message',(t,m)=>{try{const o=JSON.parse(m.toString());if(!o.mid||seen.has(o.mid))return;seen.add(o.mid);if(o.from==='sonar'&&o.t==='done')finish()}catch(e){}});return c}).filter(Boolean);
-  setInterval(()=>{send({t:'hb'});status()},4000);
+    c.on('connect',()=>{c.subscribe(T_OUT);status();send({t:'join'})});c.on('close',status);c.on('error',()=>{});
+    c.on('message',(t,m)=>{try{const o=JSON.parse(m.toString());if(typeof o.seq!=='number')return;if(o.seq<=lastSeq&&lastSeq-o.seq<200)return;lastSeq=o.seq;onState(o)}catch(e){}});return c}).filter(Boolean);
+  setInterval(()=>{send({t:'hb',sh:shOn});status()},4000);
 }
-function pulse(){count++;$('#cnt').textContent=count;const r=$('#ring');r.classList.add('hit');setTimeout(()=>r.classList.remove('hit'),140);try{navigator.vibrate&&navigator.vibrate(50)}catch(e){}send({t:'shake'})}
+function vignette(){const v=$('#vig');v.classList.add('on');setTimeout(()=>v.classList.remove('on'),120);try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}
+function show(id,on){$(id).style.display=on?'':'none'}
 
-// detección de sacudida
-let last=null,lastShake=0;
-function onMotion(e){const a=e.accelerationIncludingGravity||e.acceleration;if(!a||a.x==null)return;
-  if(last){const d=Math.abs(a.x-last.x)+Math.abs(a.y-last.y)+Math.abs(a.z-last.z);const now=Date.now();if(d>22&&now-lastShake>350){lastShake=now;pulse()}}
-  last={x:a.x,y:a.y,z:a.z}}
+// ---------- render por fase ----------
+function onState(st){S=st;const ph=st.ph;const myHp=st.hp?st.hp[ID]:undefined;
+  if(typeof myHp==='number'){if(prevHp!=null&&myHp<prevHp)vignette();prevHp=myHp}else prevHp=null;
+  const myHeart=st.hearts?st.hearts[ID]:undefined;if(typeof myHeart==='number'){if(prevHeart!=null&&myHeart<prevHeart)vignette();prevHeart=myHeart}
+  const isFin=st.fin&&st.fin.includes(ID);
+  $('#winS').classList.toggle('on',ph==='win'&&st.win===ID);$('#game').classList.toggle('on',!(ph==='win'&&st.win===ID));
+  let msg='',atk=false,sh=false,shDis=false,mash=false,cheer=false,hp=false,warn='';
+  if(ph==='idle'||ph==='lobby')msg='<b>¡ESTÁS ADENTRO!</b>Mirá la pantalla grande:\nahí está tu punto con tu nombre.\nEsperá a que empiece el juego.';
+  else if(ph==='ins'&&st.ins)msg=`<b>${st.ins.t}</b>${st.ins.b}\n\n👀 Mirá la pantalla`;
+  else if(ph==='bats'){atk=true;msg='Disparale a los murciélagos 🦇'}
+  else if(ph==='word'||ph==='bossIntro')msg='<b>¡ATENTOS!</b>Mirá la pantalla...';
+  else if(ph==='boss'){hp=true;if(myHp<=0)msg='<b>CAÍSTE 💀</b>Revivís en unos segundos...';else{atk=true;sh=true}
+    if(st.warn==='ball')warn='🩸 ¡BOLA DE SANGRE! ¡PROTEGETE!';if(st.warn==='beam')warn='🔴 ¡RAYO CARMESÍ! ¡PROTEGETE!'}
+  else if(ph==='bossDead')msg='<b>¡GANAMOS! 🎉</b>Salvamos la noche de Halloween.';
+  else if(ph==='ffa'){if(typeof myHp!=='number')msg='Mirá la pantalla 👀';else if(myHp<=0||(st.out&&st.out.includes(ID)))msg='<b>ELIMINADO 💀</b>Quedate a ver quién gana.';else{hp=true;atk=true;sh=true;shDis=true;msg='Le pegás al más cercano 👊'}}
+  else if(ph==='finalSetup')msg=isFin?'<b>🔥 ¡ESTÁS EN LA FINAL! 🔥</b>Preparate para apretar MUY rápido.':`<b>FINAL</b>${st.fn[0]} vs ${st.fn[1]}\nPreparate para alentar.`;
+  else if(ph==='final'){if(isFin){mash=true;msg=''}else{cheer=true;msg=`<b>FINAL</b>Alentá a tu favorito:`}}
+  else if(ph==='win')msg=`<b>🏆 GANÓ ${st.wn} 🏆</b>¡Gracias por jugar!`;
+  $('#msg').innerHTML=msg;
+  show('#bAtk',atk);show('#bSh',sh);show('#bMash',mash);show('#cheer',cheer);
+  $('#bSh').classList.toggle('off',shDis);$('#shL').textContent=shDis?'DESACTIVADO':'MANTENÉ APRETADO';shDisabled=shDis||!sh;
+  if(shDisabled&&holding){holding=false}
+  $('#hpw').style.display=hp?'block':'none';
+  if(hp&&typeof myHp==='number'){const m=st.max||100;$('#hpi').style.width=Math.max(0,myHp/m*100)+'%';$('#hpi').style.background=myHp/m>.5?'#3ddc84':myHp/m>.25?'#ffb020':'#ff4d4d';$('#hpt').textContent=`${myHp} / ${m}`}
+  const hearts=ph==='final'&&isFin&&typeof myHeart==='number';$('#hearts').style.display=hearts?'block':'none';if(hearts)$('#hearts').textContent='❤️'.repeat(Math.max(0,myHeart))+'🖤'.repeat(Math.max(0,2-myHeart));
+  $('#warn').style.display=warn?'block':'none';$('#warn').textContent=warn;
+  if(cheer&&st.fn){$('#cL').textContent='📣 '+st.fn[0];$('#cR').textContent='📣 '+st.fn[1]}
+}
 
-$('#go').onclick=async()=>{
-  NAME=($('#nm').value||'').trim().toUpperCase().slice(0,12);
-  try{if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){await DeviceMotionEvent.requestPermission()}}catch(e){}
-  addEventListener('devicemotion',onMotion);
-  $('#s1').classList.remove('on');$('#s2').classList.add('on');connect();
-};
+// ---------- ATACAR (recarga 1 s) ----------
+let atkReady=true,atkT=0;
+function press(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();fn()})}
+press($('#bAtk'),()=>{if(!atkReady)return;atkReady=false;atkT=performance.now();send({t:'atk'});try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}});
+// ---------- PROTEGER (mantener; se gasta en 3 s, se recarga en 10 s) ----------
+let E=1,holding=false,shOn=false,shDisabled=true;
+const bSh=$('#bSh');
+bSh.addEventListener('pointerdown',e=>{e.preventDefault();if(!shDisabled)holding=true;try{bSh.setPointerCapture(e.pointerId)}catch(err){}});
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>bSh.addEventListener(ev,()=>{holding=false}));
+bSh.addEventListener('contextmenu',e=>e.preventDefault());
+// ---------- DALE (final) ----------
+let lastMash=0;press($('#bMash'),()=>{const n=performance.now();if(n-lastMash<65)return;lastMash=n;send({t:'mash'});try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}});
+let lastCheer=0;press($('#cL'),()=>{if(performance.now()-lastCheer>250){lastCheer=performance.now();send({t:'cheer',side:'L'})}});press($('#cR'),()=>{if(performance.now()-lastCheer>250){lastCheer=performance.now();send({t:'cheer',side:'R'})}});
+
+let lt=performance.now();
+(function loop(t){const dt=Math.min(.1,(t-lt)/1000);lt=t;
+  // recarga de ataque
+  const p=atkReady?1:Math.min(1,(t-atkT)/1000);if(!atkReady&&p>=1)atkReady=true;
+  $('#fAtk').style.transform=`scaleY(${p})`;$('#bAtk').classList.toggle('ready',atkReady);
+  // escudo
+  const want=holding&&!shDisabled&&E>0;if(want)E=Math.max(0,E-dt/3);else E=Math.min(1,E+dt/10);
+  const on=want&&E>0;if(on!==shOn){shOn=on;send({t:'sh',on})}
+  $('#fSh').style.transform=`scaleY(${E})`;bSh.classList.toggle('on',shOn);
+  requestAnimationFrame(loop)})(lt);
+
+$('#go').onclick=()=>{NAME=($('#nm').value||'').trim().toUpperCase().slice(0,12);$('#me').textContent='🦇 '+(NAME||'AVESPÍA');
+  $('#s1').classList.remove('on');$('#game').classList.add('on');onState({ph:'idle'});connect()};
 $('#nm').addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click()});
-$('#tap').onclick=pulse;$('#ring').onclick=pulse;
-let finished=false;
-function finish(){if(finished)return;finished=true;document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));$('#done').classList.add('on');try{navigator.vibrate&&navigator.vibrate([200,100,200,100,500])}catch(e){}}
 </script>
 </body>
 </html>
