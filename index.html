@@ -119,17 +119,19 @@ function onState(st){S=st;const ph=st.ph;const myHp=st.hp?st.hp[ID]:undefined;
   else if(ph==='boss'){hp=true;if(myHp<=0)msg='<b>CAÍSTE 💀</b>Revivís en unos segundos...';else{atk=true;sh=true}
     if(st.warn==='ball')warn='🩸 ¡BOLA DE SANGRE! ¡PROTEGETE!';if(st.warn==='beam')warn='🔴 ¡RAYO CARMESÍ! ¡PROTEGETE!'}
   else if(ph==='bossDead')msg='<b>¡GANAMOS! 🎉</b>Salvamos la noche de Halloween.';
-  else if(ph==='ffa'){if(typeof myHp!=='number')msg='Mirá la pantalla 👀';else if(myHp<=0||(st.out&&st.out.includes(ID)))msg='<b>ELIMINADO 💀</b>Quedate a ver quién gana.';else{hp=true;atk=true;sh=true;shDis=true;msg='Le pegás al más cercano 👊'}}
+  else if(ph==='ffa'){if(typeof myHp!=='number')msg='Mirá la pantalla 👀';else if(myHp<=0||(st.out&&st.out.includes(ID)))msg='<b>ELIMINADO 💀</b>Quedate a ver quién gana.';else{hp=true;atk=true;sh=true;msg='Le pegás al más cercano 👊\nEl escudo NO se recarga en esta fase'}}
   else if(ph==='finalSetup')msg=isFin?'<b>🔥 ¡ESTÁS EN LA FINAL! 🔥</b>Preparate para apretar MUY rápido.':`<b>FINAL</b>${st.fn[0]} vs ${st.fn[1]}\nPreparate para alentar.`;
   else if(ph==='final'){if(isFin){mash=true;msg=''}else{cheer=true;msg=`<b>FINAL</b>Alentá a tu favorito:`}}
   else if(ph==='win')msg=`<b>🏆 GANÓ ${st.wn} 🏆</b>¡Gracias por jugar!`;
+  if(st.cd>0){const h=st.col&&st.col[ID];msg=`<b>EMPIEZA EN ${st.cd}</b>Buscá tu punto en la pantalla grande:\n${h!=null?`<span style="display:inline-block;width:22px;height:22px;border-radius:50%;vertical-align:middle;background:hsl(${h},100%,70%);box-shadow:0 0 12px hsl(${h},100%,60%)"></span> `:''}es el que tiene tu nombre.`;atk=false;sh=false;mash=false;cheer=false;warn=''}
+  if(ph!==lastPh){if(ph==='ffa'||ph==='boss')E=1;lastPh=ph}noRecharge=(ph==='ffa');
   $('#msg').innerHTML=msg;
   show('#bAtk',atk);show('#bSh',sh);show('#bMash',mash);show('#cheer',cheer);
-  $('#bSh').classList.toggle('off',shDis);$('#shL').textContent=shDis?'DESACTIVADO':'MANTENÉ APRETADO';shDisabled=shDis||!sh;
+  $('#bSh').classList.toggle('off',shDis);$('#shL').textContent=shDis?'DESACTIVADO':(ph==='ffa'?'NO SE RECARGA':'MANTENÉ APRETADO');shDisabled=shDis||!sh;
   if(shDisabled&&holding){holding=false}
   $('#hpw').style.display=hp?'block':'none';
   if(hp&&typeof myHp==='number'){const m=st.max||100;$('#hpi').style.width=Math.max(0,myHp/m*100)+'%';$('#hpi').style.background=myHp/m>.5?'#3ddc84':myHp/m>.25?'#ffb020':'#ff4d4d';$('#hpt').textContent=`${myHp} / ${m}`}
-  const hearts=ph==='final'&&isFin&&typeof myHeart==='number';$('#hearts').style.display=hearts?'block':'none';if(hearts)$('#hearts').textContent='❤️'.repeat(Math.max(0,myHeart))+'🖤'.repeat(Math.max(0,2-myHeart));
+  const hearts=ph==='final'&&isFin&&typeof myHeart==='number';$('#hearts').style.display=hearts?'block':'none';if(hearts)$('#hearts').textContent='❤️'.repeat(Math.max(0,myHeart))+'🖤'.repeat(Math.max(0,3-myHeart));
   $('#warn').style.display=warn?'block':'none';$('#warn').textContent=warn;
   if(cheer&&st.fn){$('#cL').textContent='📣 '+st.fn[0];$('#cR').textContent='📣 '+st.fn[1]}
 }
@@ -139,7 +141,7 @@ let atkReady=true,atkT=0;
 function press(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();fn()})}
 press($('#bAtk'),()=>{if(!atkReady)return;atkReady=false;atkT=performance.now();send({t:'atk'});try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}});
 // ---------- PROTEGER (mantener; se gasta en 3 s, se recarga en 10 s) ----------
-let E=1,holding=false,shOn=false,shDisabled=true;
+let E=1,holding=false,shOn=false,shDisabled=true,noRecharge=false,lastPh='';
 const bSh=$('#bSh');
 bSh.addEventListener('pointerdown',e=>{e.preventDefault();if(!shDisabled)holding=true;try{bSh.setPointerCapture(e.pointerId)}catch(err){}});
 ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>bSh.addEventListener(ev,()=>{holding=false}));
@@ -154,7 +156,7 @@ let lt=performance.now();
   const p=atkReady?1:Math.min(1,(t-atkT)/1000);if(!atkReady&&p>=1)atkReady=true;
   $('#fAtk').style.transform=`scaleY(${p})`;$('#bAtk').classList.toggle('ready',atkReady);
   // escudo
-  const want=holding&&!shDisabled&&E>0;if(want)E=Math.max(0,E-dt/3);else E=Math.min(1,E+dt/10);
+  const want=holding&&!shDisabled&&E>0;if(want)E=Math.max(0,E-dt/3);else if(!noRecharge)E=Math.min(1,E+dt/10);
   const on=want&&E>0;if(on!==shOn){shOn=on;send({t:'sh',on})}
   $('#fSh').style.transform=`scaleY(${E})`;bSh.classList.toggle('on',shOn);
   requestAnimationFrame(loop)})(lt);
